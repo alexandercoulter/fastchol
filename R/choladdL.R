@@ -17,7 +17,8 @@
 #' @returns Lower Cholesky factor of matrix `M`, where `M` is constructed from
 #' `M[-k, -k]` and `z` inserted at the `k`-th row/column index.
 #' @export
-#'
+#' @import Rcpp, RcppArmadillo
+#' 
 #' @examples
 choladdL = function(L, z, k){
   
