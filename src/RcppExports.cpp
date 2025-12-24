@@ -10,19 +10,32 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _fastchol_rcpp_hello_world() {
+// cholupL_Rcpp
+void cholupL_Rcpp(arma::mat& L, arma::vec& x);
+RcppExport SEXP _fastchol_cholupL_Rcpp(SEXP LSEXP, SEXP xSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
+    cholupL_Rcpp(L, x);
+    return R_NilValue;
+END_RCPP
+}
+// cholupU_Rcpp
+void cholupU_Rcpp(arma::mat& U, arma::vec& x);
+RcppExport SEXP _fastchol_cholupU_Rcpp(SEXP USEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type U(USEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
+    cholupU_Rcpp(U, x);
+    return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastchol_rcpp_hello_world", (DL_FUNC) &_fastchol_rcpp_hello_world, 0},
+    {"_fastchol_cholupL_Rcpp", (DL_FUNC) &_fastchol_cholupL_Rcpp, 2},
+    {"_fastchol_cholupU_Rcpp", (DL_FUNC) &_fastchol_cholupU_Rcpp, 2},
     {NULL, NULL, 0}
 };
 
