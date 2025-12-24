@@ -1,9 +1,9 @@
 #' Cholesky Rank-1 Update Using Lower Cholesky Factor L
 #'
-#' @param L Lower-Cholesky factor of dimension `p` \eqn{\times} `p`
+#' @param L Lower Cholesky factor of dimension `p` \eqn{\times} `p`
 #' @param x Any `p`-long vector
 #'
-#' @returns Matrix `M = L + xx'`
+#' @returns Lower Cholesky factor of `LL' + xx'`
 #' @export
 #' @import Rcpp, RcppArmadillo
 #'
