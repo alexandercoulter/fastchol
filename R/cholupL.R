@@ -1,5 +1,13 @@
-#' Cholesky Rank-1 Update Using Lower Cholesky Factor L
+#' Lower Cholesky Rank-1 Update
 #'
+#' @description
+#' This function calculates the rank-1 update of lower Cholesky factor `L`, i.e.
+#' the lower Cholesky factor of matrix `LL' + xx'`. Here, `L` is a square `p`
+#' \eqn{\times} `p` lower-triangular matrix with positive diagonal entries, and
+#' `x` is any arbitrary vector of length `p`. This function applies Givens
+#' rotations to triangularize the joint matrix `(L x)`. Due to cache latency,
+#' this function will generally be faster than `cholupU`.
+#' 
 #' @param L Lower Cholesky factor of dimension `p` \eqn{\times} `p`
 #' @param x Any `p`-long vector
 #'
