@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cholRcpp
+void cholRcpp(arma::mat& R, const arma::mat& M, const bool& lower);
+RcppExport SEXP _fastchol_cholRcpp(SEXP RSEXP, SEXP MSEXP, SEXP lowerSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type lower(lowerSEXP);
+    cholRcpp(R, M, lower);
+    return R_NilValue;
+END_RCPP
+}
 // LtoU_Rcpp
 void LtoU_Rcpp(arma::mat& U, const arma::mat& L);
 RcppExport SEXP _fastchol_LtoU_Rcpp(SEXP USEXP, SEXP LSEXP) {
@@ -101,8 +113,44 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// choladdL_Rcpp
+void choladdL_Rcpp(arma::mat& Lout, const arma::mat& Lin, const arma::vec& z, const int& k);
+RcppExport SEXP _fastchol_choladdL_Rcpp(SEXP LoutSEXP, SEXP LinSEXP, SEXP zSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Lout(LoutSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Lin(LinSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    choladdL_Rcpp(Lout, Lin, z, k);
+    return R_NilValue;
+END_RCPP
+}
+// Lsolve_Rcpp
+void Lsolve_Rcpp(const arma::mat& L, arma::vec& x);
+RcppExport SEXP _fastchol_Lsolve_Rcpp(SEXP LSEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
+    Lsolve_Rcpp(L, x);
+    return R_NilValue;
+END_RCPP
+}
+// Usolve_Rcpp
+void Usolve_Rcpp(const arma::mat& U, arma::vec& x);
+RcppExport SEXP _fastchol_Usolve_Rcpp(SEXP USEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type U(USEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
+    Usolve_Rcpp(U, x);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_fastchol_cholRcpp", (DL_FUNC) &_fastchol_cholRcpp, 3},
     {"_fastchol_LtoU_Rcpp", (DL_FUNC) &_fastchol_LtoU_Rcpp, 2},
     {"_fastchol_UtoL_Rcpp", (DL_FUNC) &_fastchol_UtoL_Rcpp, 2},
     {"_fastchol_cholupL_Rcpp", (DL_FUNC) &_fastchol_cholupL_Rcpp, 2},
@@ -111,6 +159,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastchol_choldownU_Rcpp", (DL_FUNC) &_fastchol_choldownU_Rcpp, 2},
     {"_fastchol_choldropL_Rcpp", (DL_FUNC) &_fastchol_choldropL_Rcpp, 3},
     {"_fastchol_choldropU_Rcpp", (DL_FUNC) &_fastchol_choldropU_Rcpp, 3},
+    {"_fastchol_choladdL_Rcpp", (DL_FUNC) &_fastchol_choladdL_Rcpp, 4},
+    {"_fastchol_Lsolve_Rcpp", (DL_FUNC) &_fastchol_Lsolve_Rcpp, 2},
+    {"_fastchol_Usolve_Rcpp", (DL_FUNC) &_fastchol_Usolve_Rcpp, 2},
     {NULL, NULL, 0}
 };
 
