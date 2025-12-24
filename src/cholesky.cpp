@@ -4,9 +4,9 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-void cholRcpp(arma::mat& R,
-              const arma::mat& M,
-              const bool& lower = true){
+void cholRcpp_Rcpp(arma::mat& R,
+                   const arma::mat& M,
+                   const bool& lower = true){
   
   // This function is a wrapper for Rcpp library Cholesky decomposition, which
   // permits specification of the lower/upper Cholesky factor. Calculating the
