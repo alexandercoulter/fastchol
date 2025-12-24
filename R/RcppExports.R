@@ -17,3 +17,11 @@ choldownU_Rcpp <- function(U, x) {
     invisible(.Call(`_fastchol_choldownU_Rcpp`, U, x))
 }
 
+choldropL_Rcpp <- function(L0, L, k) {
+    invisible(.Call(`_fastchol_choldropL_Rcpp`, L0, L, k))
+}
+
+choldropU_Rcpp <- function(U0, U, k) {
+    invisible(.Call(`_fastchol_choldropU_Rcpp`, U0, U, k))
+}
+

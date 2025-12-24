@@ -55,12 +55,38 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// choldropL_Rcpp
+void choldropL_Rcpp(arma::mat& L0, const arma::mat& L, const int& k);
+RcppExport SEXP _fastchol_choldropL_Rcpp(SEXP L0SEXP, SEXP LSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type L0(L0SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    choldropL_Rcpp(L0, L, k);
+    return R_NilValue;
+END_RCPP
+}
+// choldropU_Rcpp
+void choldropU_Rcpp(arma::mat& U0, const arma::mat& U, const int& k);
+RcppExport SEXP _fastchol_choldropU_Rcpp(SEXP U0SEXP, SEXP USEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type U0(U0SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type U(USEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    choldropU_Rcpp(U0, U, k);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fastchol_cholupL_Rcpp", (DL_FUNC) &_fastchol_cholupL_Rcpp, 2},
     {"_fastchol_cholupU_Rcpp", (DL_FUNC) &_fastchol_cholupU_Rcpp, 2},
     {"_fastchol_choldownL_Rcpp", (DL_FUNC) &_fastchol_choldownL_Rcpp, 2},
     {"_fastchol_choldownU_Rcpp", (DL_FUNC) &_fastchol_choldownU_Rcpp, 2},
+    {"_fastchol_choldropL_Rcpp", (DL_FUNC) &_fastchol_choldropL_Rcpp, 3},
+    {"_fastchol_choldropU_Rcpp", (DL_FUNC) &_fastchol_choldropU_Rcpp, 3},
     {NULL, NULL, 0}
 };
 
