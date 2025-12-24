@@ -427,10 +427,10 @@ void choldropU_Rcpp(arma::mat& U0,
 }
 
 // [[Rcpp::export]]
-void choladdL(arma::mat& Lout,
-              const arma::mat& Lin,
-              const arma::vec& z,
-              const int& k){
+void choladdL_Rcpp(arma::mat& Lout,
+                   const arma::mat& Lin,
+                   const arma::vec& z,
+                   const int& k){
   
   int pin = Lin.n_cols;
   int pinp1 = pin + 1;
