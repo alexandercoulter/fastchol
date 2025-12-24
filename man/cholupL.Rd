@@ -2,18 +2,23 @@
 % Please edit documentation in R/cholupL.R
 \name{cholupL}
 \alias{cholupL}
-\title{Cholesky Rank-1 Update Using Lower Cholesky Factor L}
+\title{Lower Cholesky Rank-1 Update}
 \usage{
 cholupL(L, x)
 }
 \arguments{
-\item{L}{Lower-Cholesky factor of dimension `p` \eqn{\times} `p`}
+\item{L}{Lower Cholesky factor of dimension `p` \eqn{\times} `p`}
 
 \item{x}{Any `p`-long vector}
 }
 \value{
-Matrix `M = L + xx'`
+Lower Cholesky factor of `LL' + xx'`
 }
 \description{
-Cholesky Rank-1 Update Using Lower Cholesky Factor L
+This function calculates the rank-1 update of lower Cholesky factor `L`, i.e.
+the lower Cholesky factor of matrix `LL' + xx'`. Here, `L` is a square `p`
+\eqn{\times} `p` lower-triangular matrix with positive diagonal entries, and
+`x` is any arbitrary vector of length `p`. This function applies Givens
+rotations to triangularize the joint matrix `(L x)`. Due to cache latency,
+this function will generally be faster than `cholupU`.
 }
