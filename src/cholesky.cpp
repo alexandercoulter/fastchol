@@ -627,3 +627,69 @@ void choladdL_Rcpp(arma::mat& Lout,
   }
   
 }
+
+// [[Rcpp::export]]
+void Lsolve_Rcpp(const arma::mat& L,
+                 arma::vec& x){
+  
+  // This function will modify x in-place, so it is best to use this with a
+  // function wrapper.
+  
+  int p = x.n_elem;
+  int pp1 = p + 1;
+  int pm1 = p - 1;
+  
+  for(auto [j, ell, a] = std::tuple{0, L.begin(), x.begin()}; j < p; j++, ell += pp1, ++a){
+    
+    // Fix current entry of x:
+    *a /= *ell;
+    
+    // Loop through remaining entries in the column
+    if(j < pm1){
+      
+      for(auto [u, v] = std::tuple{ell + 1, a + 1}; v != x.end(); ++u, ++v){
+        
+        // v iterates through x
+        // u iterates through L's column
+        *v -= *u * *a;
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+void Usolve_Rcpp(const arma::mat& U,
+                 arma::vec& x){
+  
+  // This function will modify x in-place, so it is best to use this with a
+  // function wrapper.
+  
+  int p = x.n_elem;
+  int pp1 = p + 1;
+  int pm1 = p - 1;
+  
+  for(auto [j, ell, a] = std::tuple{0, U.end() - 1, x.end() - 1}; j < p; j++, ell -= pp1, --a){
+    
+    // Fix current entry of x:
+    *a /= *ell;
+    
+    // Loop through remaining entries in the column
+    if(j < pm1){
+      
+      for(auto [u, v] = std::tuple{U.begin_col(pm1 - j), x.begin()}; v != a; ++u, ++v){
+        
+        // v iterates through x
+        // u iterates through U's column
+        *v -= *u * *a;
+        
+      }
+      
+    }
+    
+  }
+  
+}
