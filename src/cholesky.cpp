@@ -4,6 +4,31 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+void cholRcpp(arma::mat& R,
+              const arma::mat& M,
+              const bool& lower = true){
+  
+  // This function is a wrapper for Rcpp library Cholesky decomposition, which
+  // permits specification of the lower/upper Cholesky factor. Calculating the
+  // lower triangular factor tends to be twice as fast as calculating the upper,
+  // so it is the default mode.
+  
+  // This function modifies R in-place, so it is advised to use this function
+  // with its own wrapper.
+  
+  if(lower){
+    
+    chol(R, M, "lower");
+    
+  } else {
+    
+    chol(R, M, "upper");
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void LtoU_Rcpp(arma::mat& U,
                const arma::mat& L){
   
