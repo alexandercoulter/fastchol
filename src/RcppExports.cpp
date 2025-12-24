@@ -11,6 +11,28 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// LtoU_Rcpp
+void LtoU_Rcpp(arma::mat& U, const arma::mat& L);
+RcppExport SEXP _fastchol_LtoU_Rcpp(SEXP USEXP, SEXP LSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type U(USEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    LtoU_Rcpp(U, L);
+    return R_NilValue;
+END_RCPP
+}
+// UtoL_Rcpp
+void UtoL_Rcpp(arma::mat& L, const arma::mat& U);
+RcppExport SEXP _fastchol_UtoL_Rcpp(SEXP LSEXP, SEXP USEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type U(USEXP);
+    UtoL_Rcpp(L, U);
+    return R_NilValue;
+END_RCPP
+}
 // cholupL_Rcpp
 void cholupL_Rcpp(arma::mat& L, arma::vec& x);
 RcppExport SEXP _fastchol_cholupL_Rcpp(SEXP LSEXP, SEXP xSEXP) {
@@ -81,6 +103,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_fastchol_LtoU_Rcpp", (DL_FUNC) &_fastchol_LtoU_Rcpp, 2},
+    {"_fastchol_UtoL_Rcpp", (DL_FUNC) &_fastchol_UtoL_Rcpp, 2},
     {"_fastchol_cholupL_Rcpp", (DL_FUNC) &_fastchol_cholupL_Rcpp, 2},
     {"_fastchol_cholupU_Rcpp", (DL_FUNC) &_fastchol_cholupU_Rcpp, 2},
     {"_fastchol_choldownL_Rcpp", (DL_FUNC) &_fastchol_choldownL_Rcpp, 2},
