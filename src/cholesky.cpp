@@ -4,6 +4,52 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+void LtoU_Rcpp(arma::mat& U,
+               const arma::mat& L){
+  
+  // This function copies the lower-triangular part of L (including main
+  // diagonal) into the upper-triangular part of U. It modifies U in-place, so
+  // best to use with a wrapper function which sets the dimension of U.
+  
+  int p = L.n_cols;
+  int pp1 = p + 1;
+  
+  for(auto [j, a, b] = std::tuple{0, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+    
+    for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
+      
+      *u = *ell;
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+void UtoL_Rcpp(arma::mat& L,
+               const arma::mat& U){
+  
+  // This function copies the upper-triangular part of U (including main
+  // diagonal) into the lower-triangular part of L. It modifies L in-place, so
+  // best to use with a wrapper function which sets the dimension of L.
+  
+  int p = L.n_cols;
+  int pp1 = p + 1;
+  
+  for(auto [j, a, b] = std::tuple{0, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+    
+    for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
+      
+      *ell = *u;
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void cholupL_Rcpp(arma::mat& L,
                   arma::vec& x){
   
