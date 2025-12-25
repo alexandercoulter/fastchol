@@ -29,3 +29,21 @@ specify whether `CF` is lower- or upper-triangular; due to cache latency,
 this function will generally be faster when `CF` is the lower Cholesky
 factor.
 }
+\examples{
+# Generate positive definite matrix
+p = 20
+M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+
+# Take out a row/column of M
+k = 6
+Mk = M[-k, -k]
+
+# Calculate Cholesky factor of M
+U = chol(M)
+
+# Calculate Cholesky factor removing k-th row/column
+Uk = choldrop(U, k, lower = FALSE)
+
+# Check against Cholesky factor of Uk
+max(abs(Uk - chol(Mk)))
+}

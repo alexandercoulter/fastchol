@@ -22,6 +22,22 @@
 #' @import Rcpp, RcppArmadillo
 #' 
 #' @examples
+#' # Generate positive definite matrix
+#' p = 20
+#' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+#' 
+#' # Take out a row/column of M
+#' k = 6
+#' Mk = M[-k, -k]
+#' 
+#' # Calculate Cholesky factor of M
+#' U = chol(M)
+#' 
+#' # Calculate Cholesky factor removing k-th row/column
+#' Uk = choldrop(U, k, lower = FALSE)
+#' 
+#' # Check against Cholesky factor of Uk
+#' max(abs(Uk - chol(Mk)))
 choldrop = function(CF, k, lower = TRUE){
   
   p1 = ncol(CF) - 1
