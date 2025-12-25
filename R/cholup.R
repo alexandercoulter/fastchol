@@ -19,7 +19,22 @@
 #' @import Rcpp, RcppArmadillo
 #'
 #' @examples
-cholupL = function(CF, x, lower = TRUE){
+#' # Generate positive definite matrix
+#' p = 20
+#' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+#' 
+#' # Generate vector for rank-1 update
+#' x = rnorm(p)
+#' 
+#' # Calculate Cholesky factor of M
+#' U = chol(M)
+#' 
+#' # Calculate rank-1 update
+#' Ux = cholup(U, x, lower = FALSE)
+#' 
+#' # Check against Cholesky factor of U'U + xx'
+#' max(abs(Ux - chol(M + tcrossprod(x))))
+cholup = function(CF, x, lower = TRUE){
   
   p = length(x)
   R = CF
