@@ -35,10 +35,10 @@
 #' Uk = chol(Mk)
 #' 
 #' # Calculate Cholesky factor adding back in the k-th row/column
-#' L = choladd(t(Uk), x, k, lower = TRUE)
+#' U = choladd(Uk, x, k, lower = FALSE)
 #' 
 #' # Check against Cholesky factor of Mk
-#' max(abs(L - t(chol(M))))
+#' max(abs(U - chol(M)))
 choladd = function(CF, z, k, lower = TRUE){
   
   p1 = length(z)
