@@ -21,6 +21,23 @@
 #' @import Rcpp, RcppArmadillo
 #' 
 #' @examples
+#' # Generate positive definite matrix
+#' p = 20
+#' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+#' 
+#' # Generate extra rank-1 update which will be removed by function
+#' x = rnorm(p)
+#' M = M + tcrossprod(x)
+#' 
+#' # Calculate Cholesky factor of M
+#' U = chol(M)
+#' 
+#' # Calculate rank-1 downdate
+#' Ux = choldown(U, x, lower = FALSE)
+#' 
+#' # Check against Cholesky factor of U'U + xx'
+#' Mx = M - tcrossprod(x)
+#' max(abs(Ux - chol(Mx)))
 choldown = function(CF, x, lower = TRUE){
   
   p = length(x)

@@ -40,5 +40,6 @@ U = chol(M)
 Ux = cholup(U, x, lower = FALSE)
 
 # Check against Cholesky factor of U'U + xx'
-max(abs(Ux - chol(M + tcrossprod(x))))
+Mx = M + tcrossprod(x)
+max(abs(Ux - chol(Mx)))
 }
