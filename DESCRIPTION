@@ -8,6 +8,7 @@ Description: This package provides fast implementations of Cholesky updates, inc
 License: MIT + file LICENSE
 Encoding: UTF-8
 LinkingTo:
+    Rcpp,
     RcppArmadillo
 Imports: 
     Rcpp (>= 1.0.14),
