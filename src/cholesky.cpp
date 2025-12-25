@@ -695,17 +695,17 @@ void choladdU_Rcpp(arma::mat& Uout,
     arma::vec y = z.tail(pout - k);
     
     // Copy U11 and calculate x <-- U11^{-1}x
-    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
+    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin_col(km1)}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, ++kk){
       
       // Fix current entry of x:
       *a /= *k0;
       *k1 = *k0;
       *kk = *a;
       
-      // Loop through remaining entries in the column
+      // Loop through remaining entries in the row
       if(j < km1){
         
-        for(auto [u, v0, v1] = std::tuple{a + 1, k0 + 1, k1 + 1}; u != x.end(); ++u, ++v0, ++v1){
+        for(auto [u, v0, v1] = std::tuple{a + 1, k0 + pin, k1 + pout}; u != x.end(); ++u, v0 += pin, v1 += pout){
           
           // u iterates through x
           // v0 iterates through Uin's column
@@ -725,11 +725,11 @@ void choladdU_Rcpp(arma::mat& Uout,
     
     // Copy U12, and calculate/fix y <-- x * U12
     
-    // Outer loop will be over y (rows of Uin, Uout)
+    // Outer loop will be over y (columns of Uin, Uout)
     for(auto [b, j] = std::tuple{y.begin(), km1}; b != y.end(); ++b, j++){
       
-      // Inner loop over x (columns of Uin, Uout)
-      for(auto [a, k0, k1] = std::tuple{x.begin(), Uin.begin() + j, Uout.begin() + j + 1}; a != x.end(); ++a, k0 += pin, k1 += pout){
+      // Inner loop over x (rows of Uin, Uout)
+      for(auto [a, k0, k1] = std::tuple{x.begin(), Uin.begin_col(j), Uout.begin_col(j + 1)}; a != x.end(); ++a, ++k0, ++k1){
         
         *b -= *k0 * *a;
         *k1 = *k0;
@@ -737,14 +737,13 @@ void choladdU_Rcpp(arma::mat& Uout,
       }
       
     }
-    for(auto [b, k1] = std::tuple{y.begin(), Uout.begin_col(km1) + k}; b != y.end(); ++b, ++k1){
+    for(auto [b, k1] = std::tuple{y.begin(), Uout.begin_col(k) + km1}; b != y.end(); ++b, k1 += pout){
       
       *b /= omega;
       *k1 = *b;
       
     }
     
-    // choldown of lower-right corner
     double r;
     double c;
     double s;
@@ -755,12 +754,12 @@ void choladdU_Rcpp(arma::mat& Uout,
       c = *k0 / r;
       s = *b / r;
       
-      for(auto [u, v0, v1] = std::tuple{b, k0, k1}; u != y.end(); ++u, ++v0, ++v1){
+      for(auto [u, v0, v1] = std::tuple{b, k0, k1}; u != y.end(); ++u, v0 += pin, v1 += pout){
         
         // The variables iterate over...
         // u: iterates over y
-        // v0: iterates over Uin's column
-        // v1: iterates over Uout's column
+        // v0: iterates over Uin's row
+        // v1: iterates over Uout's row
         *v1 = c * *v0 - s * *u;
         *u = c * *u - s * *v0;
         
