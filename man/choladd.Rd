@@ -31,3 +31,22 @@ matrix `M`, provided the Cholesky factor of `M[-k, -k]` is known. That is,
 this function inverts `choldrop`, re-inserting the `k`^th row/column from
 `M`.
 }
+\examples{
+# Generate positive definite matrix
+p = 20
+M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+
+# Take out a row/column of M
+k = 6
+Mk = M[-k, -k]
+x = M[ , k]
+
+# Calculate Cholesky factor of Mk
+Uk = chol(Mk)
+
+# Calculate Cholesky factor adding back in the k-th row/column
+L = choladd(t(Uk), k, lower = TRUE)
+
+# Check against Cholesky factor of Mk
+max(abs(L - t(chol(M))))
+}
