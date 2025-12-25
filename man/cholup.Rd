@@ -10,6 +10,10 @@ cholup(CF, x, lower = TRUE)
 \item{CF}{Cholesky factor of dimension `p` \eqn{\times} `p`}
 
 \item{x}{Any `p`-long vector}
+
+\item{lower}{Boolean, dictating whether `CF` is the lower Cholesky factor
+(`TRUE`, default) or upper Cholesky factor (`FASLE`). Also dictates whether
+the returned Choleskyfactor is lower- or upper-triangular.}
 }
 \value{
 Cholesky factor of (e.g.) `(CF)(CF') + xx'`, where `(CF)(CF')` is
