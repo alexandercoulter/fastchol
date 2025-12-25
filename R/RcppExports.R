@@ -41,6 +41,10 @@ choladdL_Rcpp <- function(Lout, Lin, z, k) {
     invisible(.Call(`_fastchol_choladdL_Rcpp`, Lout, Lin, z, k))
 }
 
+choladdU_Rcpp <- function(Uout, Uin, z, k) {
+    invisible(.Call(`_fastchol_choladdU_Rcpp`, Uout, Uin, z, k))
+}
+
 Lsolve_Rcpp <- function(L, x) {
     invisible(.Call(`_fastchol_Lsolve_Rcpp`, L, x))
 }

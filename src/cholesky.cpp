@@ -629,6 +629,183 @@ void choladdL_Rcpp(arma::mat& Lout,
 }
 
 // [[Rcpp::export]]
+void choladdU_Rcpp(arma::mat& Uout,
+                   const arma::mat& Uin,
+                   const arma::vec& z,
+                   const int& k){
+  
+  int pin = Uin.n_cols;
+  int pinp1 = pin + 1;
+  int pout = z.n_elem;
+  int poutp1 = pout + 1;
+  int km1 = k - 1;
+  
+  // There are three cases, corresponding to which new row/column k will be:
+  // 1. km1 = 0
+  // 2. 0 < km1 < p
+  // 3. km1 == p
+  
+  // No matter the case, we set w = z(km1)
+  double w = z(km1);
+  
+  // Case 1.
+  if(km1 == 0){
+    
+    arma::vec y = z.tail(pout - k);
+    
+    // Fix the kth diagonal entry
+    double omega = sqrt(w);
+    Uout(km1, km1) = omega;
+    
+    // Copy U12, and calculate/fix y <-- x * U12
+    for(auto [b, k1] = std::tuple{y.begin(), Uout.begin_col(km1) + k}; b != y.end(); ++b, ++k1){
+      
+      *b /= omega;
+      *k1 = *b;
+      
+    }
+    
+    // choldown of lower-right corner
+    double r;
+    double c;
+    double s;
+    for(auto [b, k0, k1] = std::tuple{y.begin(), Uin.begin_col(km1) + km1, Uout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
+      
+      // j iterates over the number of entries;
+      r = sqrt(*k0 * *k0 - *b * *b);
+      c = *k0 / r;
+      s = *b / r;
+      
+      for(auto [u, v0, v1] = std::tuple{b, k0, k1}; u != y.end(); ++u, ++v0, ++v1){
+        
+        // The variables iterate over...
+        // u: iterates over y
+        // v0: iterates over Uin's column
+        // v1: iterates over Uout's column
+        *v1 = c * *v0 - s * *u;
+        *u = c * *u - s * *v0;
+        
+      }
+      
+    }
+    
+  } else if(km1 < pin){
+    
+    arma::vec x = z.head(km1);
+    arma::vec y = z.tail(pout - k);
+    
+    // Copy U11 and calculate x <-- U11^{-1}x
+    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
+      
+      // Fix current entry of x:
+      *a /= *k0;
+      *k1 = *k0;
+      *kk = *a;
+      
+      // Loop through remaining entries in the column
+      if(j < km1){
+        
+        for(auto [u, v0, v1] = std::tuple{a + 1, k0 + 1, k1 + 1}; u != x.end(); ++u, ++v0, ++v1){
+          
+          // u iterates through x
+          // v0 iterates through Uin's column
+          // v1 iterates through Uout's column
+          *u -= *v0 * *a;
+          *v1 = *v0;
+          
+        }
+        
+      }
+      
+    }
+    
+    // Fix the kth diagonal entry
+    double omega = sqrt(w - arma::dot(x, x));
+    Uout(km1, km1) = omega;
+    
+    // Copy U12, and calculate/fix y <-- x * U12
+    
+    // Outer loop will be over y (rows of Uin, Uout)
+    for(auto [b, j] = std::tuple{y.begin(), km1}; b != y.end(); ++b, j++){
+      
+      // Inner loop over x (columns of Uin, Uout)
+      for(auto [a, k0, k1] = std::tuple{x.begin(), Uin.begin() + j, Uout.begin() + j + 1}; a != x.end(); ++a, k0 += pin, k1 += pout){
+        
+        *b -= *k0 * *a;
+        *k1 = *k0;
+        
+      }
+      
+    }
+    for(auto [b, k1] = std::tuple{y.begin(), Uout.begin_col(km1) + k}; b != y.end(); ++b, ++k1){
+      
+      *b /= omega;
+      *k1 = *b;
+      
+    }
+    
+    // choldown of lower-right corner
+    double r;
+    double c;
+    double s;
+    for(auto [b, k0, k1] = std::tuple{y.begin(), Uin.begin_col(km1) + km1, Uout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
+      
+      // j iterates over the number of entries; 
+      r = sqrt(*k0 * *k0 - *b * *b);
+      c = *k0 / r;
+      s = *b / r;
+      
+      for(auto [u, v0, v1] = std::tuple{b, k0, k1}; u != y.end(); ++u, ++v0, ++v1){
+        
+        // The variables iterate over...
+        // u: iterates over y
+        // v0: iterates over Uin's column
+        // v1: iterates over Uout's column
+        *v1 = c * *v0 - s * *u;
+        *u = c * *u - s * *v0;
+        
+      }
+      
+    }
+    
+  } else {
+    
+    arma::vec x = z.head(km1);
+    
+    // Copy U11 and calculate x <-- U11^{-1}x
+    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
+      
+      // Fix current entry of x:
+      *a /= *k0;
+      *k1 = *k0;
+      *kk = *a;
+      
+      // Loop through remaining entries in the column
+      if(j < km1){
+        
+        for(auto [u, v0, v1] = std::tuple{a + 1, k0 + 1, k1 + 1}; u != x.end(); ++u, ++v0, ++v1){
+          
+          // u iterates through x
+          // v0 iterates through Uin's column
+          // v1 iterates through Uout's column
+          *u -= *v0 * *a;
+          *v1 = *v0;
+          
+        }
+        
+      }
+      
+    }
+    
+    // Fix the kth diagonal entry
+    double omega = sqrt(w - arma::dot(x, x));
+    Uout(km1, km1) = omega;
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void Lsolve_Rcpp(const arma::mat& L,
                  arma::vec& x){
   
