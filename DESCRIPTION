@@ -1,10 +1,10 @@
 Package: fastchol
 Type: Package
 Title: Fast methods for Cholesky decompositions and updates
-Version: 1.0
+Version: 0.0.0.900
 Date: 2025-12-24
 Authors@R: person("Alexander", "Coulter", role = c("aut", "cre"), email = "coultera@tamu.edu")
-Description: More about what it does (maybe more than one line).
+Description: This package provides fast implementations of Cholesky updates, including rank-1 updates (cholup), rank-1 downdates (choldown), dropping a row/column from the parent matrix (choldrop), adding a row/column (choladd), transpose, backsolve/forwardsolve, and the Cholesky decomposition itself. All operations are supported with lower or upper Cholesky factors.
 License: MIT + file LICENSE
 LinkingTo: 
     Rcpp,
