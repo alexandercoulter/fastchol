@@ -19,7 +19,6 @@
 #' @returns Cholesky factor of `M[-k, -k]`, i.e. of `M` with the
 #' \eqn{k^{th}} row/column removed
 #' @export
-#' @import Rcpp, RcppArmadillo
 #' 
 #' @examples
 #' # Generate positive definite matrix

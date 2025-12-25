@@ -3,7 +3,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
 
-
+// [[Rcpp::export]]
 void cholRcpp_Rcpp(arma::mat& R,
                    const arma::mat& M,
                    const bool& lower = true){
@@ -28,7 +28,7 @@ void cholRcpp_Rcpp(arma::mat& R,
   
 }
 
-
+// [[Rcpp::export]]
 void LtoU_Rcpp(arma::mat& U,
                const arma::mat& L){
   
@@ -51,7 +51,7 @@ void LtoU_Rcpp(arma::mat& U,
   
 }
 
-
+// [[Rcpp::export]]
 void UtoL_Rcpp(arma::mat& L,
                const arma::mat& U){
   
@@ -74,7 +74,7 @@ void UtoL_Rcpp(arma::mat& L,
   
 }
 
-
+// [[Rcpp::export]]
 void cholupL_Rcpp(arma::mat& L,
                   arma::vec& x){
   
@@ -109,7 +109,7 @@ void cholupL_Rcpp(arma::mat& L,
   
 }
 
-
+// [[Rcpp::export]]
 void cholupU_Rcpp(arma::mat& U,
                   arma::vec& x){
   
@@ -144,7 +144,7 @@ void cholupU_Rcpp(arma::mat& U,
   
 }
 
-
+// [[Rcpp::export]]
 void choldownL_Rcpp(arma::mat& L,
                     arma::vec& x){
   
@@ -179,7 +179,7 @@ void choldownL_Rcpp(arma::mat& L,
   
 }
 
-
+// [[Rcpp::export]]
 void choldownU_Rcpp(arma::mat& U,
                     arma::vec& x){
   
@@ -214,7 +214,7 @@ void choldownU_Rcpp(arma::mat& U,
   
 }
 
-
+// [[Rcpp::export]]
 void choldropL_Rcpp(arma::mat& L0,
                     const arma::mat& L,
                     const int& k){
@@ -333,7 +333,7 @@ void choldropL_Rcpp(arma::mat& L0,
   
 }
 
-
+// [[Rcpp::export]]
 void choldropU_Rcpp(arma::mat& U0,
                     const arma::mat& U,
                     const int& k){
@@ -451,7 +451,7 @@ void choldropU_Rcpp(arma::mat& U0,
   
 }
 
-
+// [[Rcpp::export]]
 void choladdL_Rcpp(arma::mat& Lout,
                    const arma::mat& Lin,
                    const arma::vec& z,
@@ -628,7 +628,7 @@ void choladdL_Rcpp(arma::mat& Lout,
   
 }
 
-
+// [[Rcpp::export]]
 void Lsolve_Rcpp(const arma::mat& L,
                  arma::vec& x){
   
@@ -661,7 +661,7 @@ void Lsolve_Rcpp(const arma::mat& L,
   
 }
 
-
+// [[Rcpp::export]]
 void Usolve_Rcpp(const arma::mat& U,
                  arma::vec& x){
   

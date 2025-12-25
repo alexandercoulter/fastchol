@@ -21,3 +21,12 @@ Rcpp library implementation, which permits calculating either the lower or
 upper Cholesky factors. Calculating the lower Cholesky factor tends to be
 twice as fast, so it is the default.
 }
+\examples{
+# Generate positive definite matrix
+p = 20
+M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+
+# Calculate Cholesky factors
+L = cholRcpp(M, lower = TRUE)
+U = cholRcpp(M, lower = FALSE)
+}

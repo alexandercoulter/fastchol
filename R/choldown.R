@@ -18,7 +18,6 @@
 #'
 #' @returns Cholesky factor of `M - xx'`
 #' @export
-#' @import Rcpp, RcppArmadillo
 #' 
 #' @examples
 #' # Generate positive definite matrix

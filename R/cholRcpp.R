@@ -12,9 +12,15 @@
 #'
 #' @returns The lower (or upper) Cholesky factor of `M`
 #' @export
-#' @import Rcpp, RcppArmadillo
 #' 
 #' @examples
+#' # Generate positive definite matrix
+#' p = 20
+#' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+#' 
+#' # Calculate Cholesky factors
+#' L = cholRcpp(M, lower = TRUE)
+#' U = cholRcpp(M, lower = FALSE)
 cholRcpp = function(M, lower = TRUE){
   
   p = ncol(M)

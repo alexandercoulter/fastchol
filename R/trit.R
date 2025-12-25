@@ -17,7 +17,6 @@
 #' 
 #' @returns The transpose
 #' @export
-#' @import Rcpp, RcppArmadillo
 #'
 #' @examples
 #' # Generate positive definite matrix

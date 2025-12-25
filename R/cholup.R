@@ -19,7 +19,6 @@
 #' @returns Cholesky factor of (e.g.) `(CF)(CF') + xx'`, where `(CF)(CF')` is
 #' the positive definite matrix associated with `CF`.
 #' @export
-#' @import Rcpp, RcppArmadillo
 #'
 #' @examples
 #' # Generate positive definite matrix

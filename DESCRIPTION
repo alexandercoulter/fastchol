@@ -6,8 +6,8 @@ Date: 2025-12-24
 Authors@R: person("Alexander", "Coulter", role = c("aut", "cre"), email = "coultera@tamu.edu")
 Description: This package provides fast implementations of Cholesky updates, including rank-1 updates (cholup), rank-1 downdates (choldown), dropping a row/column from the parent matrix (choldrop), adding a row/column (choladd), transpose, backsolve/forwardsolve, and the Cholesky decomposition itself. All operations are supported with lower or upper Cholesky factors.
 License: MIT + file LICENSE
-LinkingTo: 
-    Rcpp,
+Encoding: UTF-8
+LinkingTo:
     RcppArmadillo
 Imports: 
     Rcpp (>= 1.0.14)

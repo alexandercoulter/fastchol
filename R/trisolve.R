@@ -12,7 +12,6 @@
 #'
 #' @returns Solution for `y` in linear system `(CF)y = x`, i.e. \eqn{(CF)^{-1}x}
 #' @export
-#' @import Rcpp, RcppArmadillo
 #'
 #' @examples
 #' # Generate positive definite matrix
