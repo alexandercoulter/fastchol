@@ -36,7 +36,7 @@
 #' Uk = chol(Mk)
 #' 
 #' # Calculate Cholesky factor adding back in the k-th row/column
-#' L = choladd(t(Uk), k, lower = TRUE)
+#' L = choladd(t(Uk), x, k, lower = TRUE)
 #' 
 #' # Check against Cholesky factor of Mk
 #' max(abs(L - t(chol(M))))
