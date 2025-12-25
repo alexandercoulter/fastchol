@@ -10,7 +10,8 @@ Encoding: UTF-8
 LinkingTo:
     RcppArmadillo
 Imports: 
-    Rcpp (>= 1.0.14)
+    Rcpp (>= 1.0.14),
+    Rdpack
 Suggests: 
     knitr,
     rmarkdown,
