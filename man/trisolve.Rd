@@ -14,6 +14,9 @@ trisolve(CF, x, lower = TRUE)
 \item{lower}{Boolean, dictating whether `CF` is lower-triangular
 (`TRUE`, default) or upper-triangular (`FASLE`).}
 }
+\value{
+Solution for `y` in linear system `(CF)y = x`, i.e. \eqn{(CF)^{-1}x}
+}
 \description{
 This function is a custom implementation of the default execution of 
 `forwardsolve` (when `lower = TRUE`) or `backsolve` (when `lower = FALSE`),

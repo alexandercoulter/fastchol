@@ -10,7 +10,7 @@
 #' @param lower Boolean, dictating whether `CF` is lower-triangular
 #' (`TRUE`, default) or upper-triangular (`FASLE`).
 #'
-#' @returns
+#' @returns Solution for `y` in linear system `(CF)y = x`, i.e. \eqn{(CF)^{-1}x}
 #' @export
 #' @import Rcpp, RcppArmadillo
 #'
