@@ -230,7 +230,7 @@ void choldropL_Rcpp(arma::mat& L0,
   if(km1 == pm1){
     
     // If k is the last row/column, we copy up until that:
-    for(int j = 0; j < L0.n_cols; j++){
+    for(int j = 0; j < pm1; j++){
       
       for(auto [u, v] = std::tuple{L.begin_col(j) + j, L0.begin_col(j) + j}; v != L0.end_col(j); ++u, ++v){
         
@@ -343,14 +343,14 @@ void choldropU_Rcpp(arma::mat& U0,
   
   int km1 = k - 1;
   int p = U.n_cols;
-  int pm1 = p - 1;
   int pp1 = p + 1;
+  int pm1 = p - 1;
   int jm1;
   
   if(km1 == pm1){
     
     // If k is the last row/column, we copy up until that:
-    for(int j = 0; j < U0.n_cols; j++){
+    for(int j = 0; j < pm1; j++){
       
       for(auto [u, v, w] = std::tuple{U.begin_col(j), U0.begin_col(j), 0}; w <= j; ++u, ++v, w++){
         
