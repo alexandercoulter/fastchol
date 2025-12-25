@@ -12,6 +12,9 @@
 #' 
 #' @param CF Cholesky factor of dimension `p` \eqn{\times} `p`
 #' @param x Any `p`-long vector
+#' @param lower Boolean, dictating whether `CF` is the lower Cholesky factor
+#' (`TRUE`, default) or upper Cholesky factor (`FASLE`). Also dictates whether
+#' the returned Choleskyfactor is lower- or upper-triangular.
 #'
 #' @returns Cholesky factor of (e.g.) `(CF)(CF') + xx'`, where `(CF)(CF')` is
 #' the positive definite matrix associated with `CF`.
