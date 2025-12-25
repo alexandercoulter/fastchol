@@ -15,6 +15,24 @@
 #' @import Rcpp, RcppArmadillo
 #'
 #' @examples
+#' # Generate positive definite matrix
+#' p = 20
+#' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
+#' 
+#' # Calculate Cholesky factors
+#' U = chol(M)
+#' L = t(U)
+#' 
+#' # Generate vector for linear system
+#' x = rnorm(p)
+#' 
+#' # Calculate triangular solves
+#' Lx = trisolve(L, x, lower = TRUE)
+#' Ux = trisolve(U, x, lower = FALSE)
+#' 
+#' # Compare to forwardsolve and backsolve
+#' max(abs(Lx - forwardsolve(L, x)))
+#' max(abs(Ux - backsolve(U, x)))
 trisolve = function(CF, x, lower = TRUE){
   
   x0 = x
