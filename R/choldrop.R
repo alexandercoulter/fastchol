@@ -36,13 +36,13 @@
 #' # Calculate Cholesky factor removing k-th row/column
 #' Uk = choldrop(U, k, lower = FALSE)
 #' 
-#' # Check against Cholesky factor of Uk
+#' # Check against Cholesky factor of Mk
 #' max(abs(Uk - chol(Mk)))
 choldrop = function(CF, k, lower = TRUE){
   
   p1 = ncol(CF) - 1
   R = matrix(0, p1, p1)
-  if(lower) choldropL_Rcpp(R, CF, k) else choldropL_Rcpp(R, CF, k)
+  if(lower) choldropL_Rcpp(R, CF, k) else choldropU_Rcpp(R, CF, k)
   R
   
 }

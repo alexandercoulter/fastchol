@@ -44,6 +44,6 @@ U = chol(M)
 # Calculate Cholesky factor removing k-th row/column
 Uk = choldrop(U, k, lower = FALSE)
 
-# Check against Cholesky factor of Uk
+# Check against Cholesky factor of Mk
 max(abs(Uk - chol(Mk)))
 }
