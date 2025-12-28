@@ -110,6 +110,44 @@ void cholupL_Rcpp(arma::mat& L,
 }
 
 // [[Rcpp::export]]
+void cholupKL_Rcpp(arma::mat& L,
+                   arma::mat& X){
+  
+  // It would be best to use this function with a wrapper, as it modifies BOTH
+  // L and x in-place.
+  
+  int p = X.n_rows;
+  int K = X.n_cols;
+  int pp1 = p + 1;
+  double r;
+  double c;
+  double s;
+  double y;
+  
+  for(auto [j, a, b] = std::tuple{0, L.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
+    
+    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, xk += K){
+      
+      r = sqrt(*a * *a + *xk * *xk);
+      c = *a / r;
+      s = *xk / r;
+      
+      *a = r;
+      for(auto [u, v] = std::tuple{xk + 1, a + 1}; xk != X.end_col(k); ++u, ++v){
+        
+        y = *v;
+        *v = c * *v + s * *u;
+        *u = s * y - c * *u;
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void cholupU_Rcpp(arma::mat& U,
                   arma::vec& x){
   
