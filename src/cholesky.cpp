@@ -194,6 +194,50 @@ void cholupU_Rcpp(arma::mat& U,
 }
 
 // [[Rcpp::export]]
+void cholupKU_Rcpp(arma::mat& U,
+                   arma::mat& X){
+  
+  // It would be best to use this function with a wrapper, as it modifies BOTH
+  // U and x in-place.
+  
+  int p = X.n_rows;
+  int K = X.n_cols;
+  int pp1 = p + 1;
+  double r;
+  double c;
+  double s;
+  double y;
+  
+  for(auto [j, a, b] = std::tuple{0, U.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
+    
+    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, ++xk){
+      
+      r = sqrt(*a * *a + *xk * *xk);
+      c = *a / r;
+      s = *xk / r;
+      
+      // Set first dimension
+      *a = r;
+      
+      // Calculate for second dimension
+      for(auto [u, v] = std::tuple{b + 1, a + 1}; u != X.end_col(k); ++u, v += p){
+        
+        // The variables iterate over...
+        // u: iterates over x
+        // v: iterates over L's column
+        y = *v;
+        *v = c * *v + s * *u;
+        *u = s * y - c * *u;
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void choldownL_Rcpp(arma::mat& L,
                     arma::vec& x){
   
