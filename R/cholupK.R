@@ -25,18 +25,19 @@
 #' p = 20
 #' M = diag(p) + tcrossprod(matrix(rnorm(p * 2), p, 2))
 #' 
-#' # Generate vector for rank-1 update
-#' x = rnorm(p)
+#' # Generate matrix for rank-K update, i.e. M + XX' = M + sum_k {X[ , k] * X[ , k]'}
+#' K = 3
+#' X = matrix(rnorm(p * K), p, K)
 #' 
 #' # Calculate Cholesky factor of M
 #' U = chol(M)
 #' 
 #' # Calculate rank-1 update
-#' Ux = cholup(U, x, lower = FALSE)
+#' UX = cholupK(U, X, lower = FALSE)
 #' 
-#' # Check against Cholesky factor of U'U + xx'
-#' Mx = M + tcrossprod(x)
-#' max(abs(Ux - chol(Mx)))
+#' # Check against Cholesky factor of U'U + XX'
+#' MX = M + tcrossprod(X)
+#' max(abs(UX - chol(MX)))
 cholupK = function(CF, X, lower = TRUE){
   
   p = nrow(X)
