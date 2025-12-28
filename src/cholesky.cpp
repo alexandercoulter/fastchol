@@ -132,7 +132,7 @@ void cholupKL_Rcpp(arma::mat& L,
       c = *a / r;
       s = *xk / r;
       
-      for(auto [u, v] = std::tuple{xk, a}; xk != X.end_col(k); ++u, ++v){
+      for(auto [u, v] = std::tuple{xk, a}; u != X.end_col(k); ++u, ++v){
         
         y = *v;
         *v = c * *v + s * *u;
