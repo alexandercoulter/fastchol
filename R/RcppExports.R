@@ -17,6 +17,10 @@ cholupL_Rcpp <- function(L, x) {
     invisible(.Call(`_fastchol_cholupL_Rcpp`, L, x))
 }
 
+cholupKL_Rcpp <- function(L, X) {
+    invisible(.Call(`_fastchol_cholupKL_Rcpp`, L, X))
+}
+
 cholupU_Rcpp <- function(U, x) {
     invisible(.Call(`_fastchol_cholupU_Rcpp`, U, x))
 }
