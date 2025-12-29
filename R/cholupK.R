@@ -40,7 +40,6 @@
 #' max(abs(UX - chol(MX)))
 cholupK = function(CF, X, lower = TRUE){
   
-  p = nrow(X)
   R = CF
   R[1] = R[1] + 0
   X0 = X
