@@ -220,7 +220,7 @@ void cholupKU_Rcpp(arma::mat& U,
       *a = r;
       
       // Calculate for second dimension
-      for(auto [u, v] = std::tuple{b + 1, a + p}; u != X.end_col(k); ++u, v += p){
+      for(auto [u, v] = std::tuple{xk + 1, a + p}; u != X.end_col(k); ++u, v += p){
         
         // The variables iterate over...
         // u: iterates over X's column
