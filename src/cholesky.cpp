@@ -178,11 +178,11 @@ void cholupU_Rcpp(arma::mat& U,
     *a = r;
     
     // Calculate for second dimension
-    for(auto [u, v] = std::tuple{b + 1, a + 1}; u != x.end(); ++u, v += p){
+    for(auto [u, v] = std::tuple{b + 1, a + p}; u != x.end(); ++u, v += p){
       
       // The variables iterate over...
       // u: iterates over x
-      // v: iterates over L's column
+      // v: iterates over U's row
       y = *v;
       *v = c * *v + s * *u;
       *u = s * y - c * *u;
@@ -220,11 +220,11 @@ void cholupKU_Rcpp(arma::mat& U,
       *a = r;
       
       // Calculate for second dimension
-      for(auto [u, v] = std::tuple{b + 1, a + 1}; u != X.end_col(k); ++u, v += p){
+      for(auto [u, v] = std::tuple{b + 1, a + p}; u != X.end_col(k); ++u, v += p){
         
         // The variables iterate over...
-        // u: iterates over x
-        // v: iterates over L's column
+        // u: iterates over X's column
+        // v: iterates over U's row
         y = *v;
         *v = c * *v + s * *u;
         *u = s * y - c * *u;
