@@ -39,7 +39,6 @@
 #' max(abs(Ux - chol(Mx)))
 cholup = function(CF, x, lower = TRUE){
   
-  p = length(x)
   R = CF
   R[1] = R[1] + 0
   x0 = x
