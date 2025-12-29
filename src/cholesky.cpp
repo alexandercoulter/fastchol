@@ -210,7 +210,7 @@ void cholupKU_Rcpp(arma::mat& U,
   
   for(auto [j, a, b] = std::tuple{0, U.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
     
-    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, ++xk){
+    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, xk += p){
       
       r = sqrt(*a * *a + *xk * *xk);
       c = *a / r;
