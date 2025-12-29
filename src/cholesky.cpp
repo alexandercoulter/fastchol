@@ -104,7 +104,7 @@ void cholupL_Rcpp(arma::mat& L,
       // u: iterates over x
       // v: iterates over L's column
       y = *v;
-      *v = c * *v + s * *u;
+      *v = c * y + s * *u;
       *u = s * y - c * *u;
       
     }
@@ -143,7 +143,7 @@ void cholupKL_Rcpp(arma::mat& L,
       for(auto [u, v] = std::tuple{xk + 1, a + 1}; u != X.end_col(k); ++u, ++v){
         
         y = *v;
-        *v = c * *v + s * *u;
+        *v = c * y + s * *u;
         *u = s * y - c * *u;
         
       }
@@ -184,7 +184,7 @@ void cholupU_Rcpp(arma::mat& U,
       // u: iterates over x
       // v: iterates over U's row
       y = *v;
-      *v = c * *v + s * *u;
+      *v = c * y + s * *u;
       *u = s * y - c * *u;
       
     }
@@ -226,7 +226,7 @@ void cholupKU_Rcpp(arma::mat& U,
         // u: iterates over X's column
         // v: iterates over U's row
         y = *v;
-        *v = c * *v + s * *u;
+        *v = c * y + s * *u;
         *u = s * y - c * *u;
         
       }
@@ -263,7 +263,7 @@ void choldownL_Rcpp(arma::mat& L,
       // v: iterates over x
       // u: iterates over L's column
       y = *v;
-      *v = c * *v - s * *u;
+      *v = c * y - s * *u;
       *u = c * *u - s * y;
       
     }
@@ -298,7 +298,7 @@ void choldownU_Rcpp(arma::mat& U,
       // u: iterates over x
       // v: iterates over L's column
       y = *v;
-      *v = c * *v - s * *u;
+      *v = c * y - s * *u;
       *u = c * *u - s * y;
       
     }
