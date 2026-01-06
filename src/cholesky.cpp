@@ -906,7 +906,6 @@ void Lsolve_Rcpp(const arma::mat& L,
   
   int p = x.n_elem;
   int pp1 = p + 1;
-  int pm1 = p - 1;
   
   for(auto [j, ell, a] = std::tuple{0, L.begin(), x.begin()}; j < p; j++, ell += pp1, ++a){
     
@@ -914,15 +913,11 @@ void Lsolve_Rcpp(const arma::mat& L,
     *a /= *ell;
     
     // Loop through remaining entries in the column
-    if(j < pm1){
+    for(auto [u, v] = std::tuple{ell + 1, a + 1}; v != x.end(); ++u, ++v){
       
-      for(auto [u, v] = std::tuple{ell + 1, a + 1}; v != x.end(); ++u, ++v){
-        
-        // v iterates through x
-        // u iterates through L's column
-        *v -= *u * *a;
-        
-      }
+      // v iterates through x
+      // u iterates through L's column
+      *v -= *u * *a;
       
     }
     
@@ -940,7 +935,6 @@ void LsolveX_Rcpp(const arma::mat& L,
   int p = X.n_rows;
   int q = X.n_cols;
   int pp1 = p + 1;
-  int pm1 = p - 1;
   
   for(auto [j, ell, a] = std::tuple{0, L.begin(), X.begin()}; j < p; j++, ell += pp1, ++a){
     
