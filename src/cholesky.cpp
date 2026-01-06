@@ -954,7 +954,7 @@ void LsolveX_Rcpp(const arma::mat& L,
         
         // v iterates through X's column
         // u iterates through L's column
-        *v -= *u * *a;
+        *v -= *u * *b;
         
       }
       
