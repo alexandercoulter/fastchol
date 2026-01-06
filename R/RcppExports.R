@@ -57,10 +57,6 @@ Lsolve_Rcpp <- function(L, x) {
     invisible(.Call(`_fastchol_Lsolve_Rcpp`, L, x))
 }
 
-LsolveX_Rcpp <- function(L, X) {
-    invisible(.Call(`_fastchol_LsolveX_Rcpp`, L, X))
-}
-
 Usolve_Rcpp <- function(U, x) {
     invisible(.Call(`_fastchol_Usolve_Rcpp`, U, x))
 }
