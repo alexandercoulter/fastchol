@@ -36,7 +36,7 @@ trisolveX = function(CF, X, lower = TRUE){
   
   X0 = X
   X0[1] = X0[1] + 0
-  if(lower) Lsolve_Rcpp(CF, X0) else Usolve_Rcpp(CF, X0)
+  if(lower) LsolveX_Rcpp(CF, X0) else UsolveX_Rcpp(CF, X0)
   X0
   
 }
