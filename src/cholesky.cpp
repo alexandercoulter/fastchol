@@ -931,6 +931,40 @@ void Lsolve_Rcpp(const arma::mat& L,
 }
 
 // [[Rcpp::export]]
+void LsolveX_Rcpp(const arma::mat& L,
+                  arma::mat& X){
+  
+  // This function will modify x in-place, so it is best to use this with a
+  // function wrapper.
+  
+  int p = X.n_rows;
+  int q = X.n_cols;
+  int pp1 = p + 1;
+  int pm1 = p - 1;
+  
+  for(auto [j, ell, a] = std::tuple{0, L.begin(), X.begin()}; j < p; j++, ell += pp1, ++a){
+    
+    // Fix current entries of X:
+    for(auto [b, k] = std::tuple{a, 0}; k < q; b += q, k++){
+      
+      *b /= *ell;
+      
+      // Loop through remaining entries in the column
+      for(auto [u, v] = std::tuple{ell + 1, b + 1}; v != X.end_col(k); ++u, ++v){
+        
+        // v iterates through X's column
+        // u iterates through L's column
+        *v -= *u * *a;
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
 void Usolve_Rcpp(const arma::mat& U,
                  arma::vec& x){
   
