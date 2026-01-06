@@ -945,7 +945,7 @@ void LsolveX_Rcpp(const arma::mat& L,
   for(auto [j, ell, a] = std::tuple{0, L.begin(), X.begin()}; j < p; j++, ell += pp1, ++a){
     
     // Fix current entries of X:
-    for(auto [b, k] = std::tuple{a, 0}; k < q; b += q, k++){
+    for(auto [b, k] = std::tuple{a, 0}; k < q; b += p, k++){
       
       *b /= *ell;
       
