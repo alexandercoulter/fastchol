@@ -36,10 +36,10 @@ void LtoU_Rcpp(arma::mat& U,
   // diagonal) into the upper-triangular part of U. It modifies U in-place, so
   // best to use with a wrapper function which sets the dimension of U.
   
-  int p = L.n_cols;
-  int pp1 = p + 1;
+  unsigned int p = L.n_cols;
+  unsigned int pp1 = p + 1;
   
-  for(auto [j, a, b] = std::tuple{0, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+  for(auto [j, a, b] = std::tuple{0u, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
     
     for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
       
@@ -59,10 +59,10 @@ void UtoL_Rcpp(arma::mat& L,
   // diagonal) into the lower-triangular part of L. It modifies L in-place, so
   // best to use with a wrapper function which sets the dimension of L.
   
-  int p = L.n_cols;
-  int pp1 = p + 1;
+  unsigned int p = L.n_cols;
+  unsigned int pp1 = p + 1;
   
-  for(auto [j, a, b] = std::tuple{0, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+  for(auto [j, a, b] = std::tuple{0u, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
     
     for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
       
@@ -76,36 +76,42 @@ void UtoL_Rcpp(arma::mat& L,
 
 // [[Rcpp::export]]
 void cholupL_Rcpp(arma::mat& L,
-                  arma::vec& x){
+                   arma::vec& x){
   
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // L and x in-place.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
+  auto l = L.begin();
+  auto xptr = x.memptr();
+  unsigned int p = x.n_elem;
+  unsigned int j, k;
+  double r, c, s, y, z;
   
-  for(auto [j, a, b] = std::tuple{0, L.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  for(j = 0; j < p; j++){
     
-    r = sqrt(*a * *a + *b * *b);
-    c = *a / r;
-    s = *b / r;
+    l += j;
+    y = *l;
+    z = xptr[j];
+    
+    r = sqrt(y * y + z * z);
+    c = y / r;
+    s = z / r;
     
     // Set first dimension
-    *a = r;
+    *l = r;
+    ++l;
     
     // Calculate for remaining dimensions
-    for(auto [u, v] = std::tuple{b + 1, a + 1}; u != x.end(); ++u, ++v){
+    for(k = j + 1; k < p; k++, ++l){
       
       // The variables iterate over...
-      // u: iterates over x
-      // v: iterates over L's column
-      y = *v;
-      *v = c * y + s * *u;
-      *u = s * y - c * *u;
+      // z: iterates over x
+      // y: iterates over L's column
+      y = *l;
+      z = xptr[k];
+      
+      *l = c * y + s * z;
+      xptr[k] = s * y - c * z;
       
     }
     
@@ -120,17 +126,14 @@ void cholupKL_Rcpp(arma::mat& L,
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // L and x in-place.
   
-  int p = X.n_rows;
-  int K = X.n_cols;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
-  
-  for(auto [j, a, b] = std::tuple{0, L.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
+  unsigned int p = X.n_rows;
+  unsigned int K = X.n_cols;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y;
+
+  for(auto [j, a, b] = std::tuple{0u, L.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
     
-    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, xk += p){
+    for(auto [k, xk] = std::tuple{0u, b}; k < K; k++, xk += p){
       
       r = sqrt(*a * *a + *xk * *xk);
       c = *a / r;
@@ -161,14 +164,49 @@ void cholupU_Rcpp(arma::mat& U,
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
+  unsigned int p = x.n_elem;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y;
+
+  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+    
+    r = sqrt(*a * *a + *b * *b);
+    c = *a / r;
+    s = *b / r;
+    
+    // Set first dimension
+    *a = r;
+    
+    // Calculate for second dimension
+    for(auto [u, v] = std::tuple{b + 1, a + p}; u != x.end(); ++u, v += p){
+      
+      // The variables iterate over...
+      // u: iterates over x
+      // v: iterates over U's row
+      y = *v;
+      *v = c * y + s * *u;
+      *u = s * y - c * *u;
+      
+    }
+    
+  }
   
-  for(auto [j, a, b] = std::tuple{0, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+}
+
+// [[Rcpp::export]]
+void cholupU2_Rcpp(arma::mat& U,
+                   arma::vec& x){
+  
+  // It would be best to use this function with a wrapper, as it modifies BOTH
+  // U and x in-place.
+  
+  auto u = U.begin();
+  auto xptr = x.memptr();
+  unsigned int p = x.n_elem;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y, z;
+  
+  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
     
     r = sqrt(*a * *a + *b * *b);
     c = *a / r;
@@ -200,17 +238,14 @@ void cholupKU_Rcpp(arma::mat& U,
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  int p = X.n_rows;
-  int K = X.n_cols;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
+  unsigned int p = X.n_rows;
+  unsigned int K = X.n_cols;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y;
   
-  for(auto [j, a, b] = std::tuple{0, U.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
+  for(auto [j, a, b] = std::tuple{0u, U.begin(), X.begin()}; j < p; j++, a += pp1, ++b){
     
-    for(auto [k, xk] = std::tuple{0, b}; k < K; k++, xk += p){
+    for(auto [k, xk] = std::tuple{0u, b}; k < K; k++, xk += p){
       
       r = sqrt(*a * *a + *xk * *xk);
       c = *a / r;
@@ -244,14 +279,11 @@ void choldownL_Rcpp(arma::mat& L,
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // L and x in-place.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
+  unsigned int p = x.n_elem;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y;
   
-  for(auto [j, a, b] = std::tuple{0, L.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  for(auto [j, a, b] = std::tuple{0u, L.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
     
     r = sqrt(*a * *a - *b * *b);
     c = *a / r;
@@ -279,14 +311,11 @@ void choldownU_Rcpp(arma::mat& U,
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
-  double r;
-  double c;
-  double s;
-  double y;
+  unsigned int p = x.n_elem;
+  unsigned int pp1 = p + 1;
+  double r, c, s, y;
   
-  for(auto [j, a, b] = std::tuple{0, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
     
     r = sqrt(*a * *a - *b * *b);
     c = *a / r;
@@ -315,15 +344,15 @@ void choldropL_Rcpp(arma::mat& L0,
   // The matrix L0 should have size = (nrow(L) - 1) * (ncol(L) - 1); it is
   // modified in-place.
   
-  int km1 = k - 1;
-  int p = L.n_cols;
-  int pp1 = p + 1;
-  int pm1 = p - 1;
+  unsigned int km1 = k - 1;
+  unsigned int p = L.n_cols;
+  unsigned int pp1 = p + 1;
+  unsigned int pm1 = p - 1;
   
   if(km1 == pm1){
     
     // If k is the last row/column, we copy up until that:
-    for(int j = 0; j < pm1; j++){
+    for(unsigned int j = 0; j < pm1; j++){
       
       for(auto [u, v] = std::tuple{L.begin_col(j) + j, L0.begin_col(j) + j}; v != L0.end_col(j); ++u, ++v){
         
@@ -336,17 +365,15 @@ void choldropL_Rcpp(arma::mat& L0,
   } else if(km1 == 0){
     
     // Perform rank-1 update on lower-right corner
-    int pk = p - k;
+    unsigned int pk = p - k;
     arma::colvec x(pk);
     for(auto [i, j] = std::tuple{L.begin_col(km1) + k, x.begin()}; j != x.end(); ++i, ++j){
       
       *j = *i;
       
     }
-    double r;
-    double c;
-    double s;
-    int jm1;
+    double r, c, s;
+    unsigned int jm1;
     
     for(auto [j, a, b] = std::tuple{k, L.begin_col(k) + k, x.begin()}; j < p; j++, a += pp1, ++b){
       
@@ -371,7 +398,7 @@ void choldropL_Rcpp(arma::mat& L0,
   } else {
     
     // Copy the left side...
-    for(int j = 0; j < km1; j++){
+    for(unsigned int j = 0; j < km1; j++){
       
       // Copy the top-left (above k) corner
       for(auto [u, v] = std::tuple{L.begin_col(j) + j, L0.begin_col(j) + j}; u != L.begin_col(j) + km1; ++u, ++v){
@@ -390,17 +417,15 @@ void choldropL_Rcpp(arma::mat& L0,
     }
     
     // Perform rank-1 update on lower-right corner
-    int pk = p - k;
+    unsigned int pk = p - k;
     arma::colvec x(pk);
     for(auto [i, j] = std::tuple{L.begin_col(km1) + k, x.begin()}; j != x.end(); ++i, ++j){
       
       *j = *i;
       
     }
-    double r;
-    double c;
-    double s;
-    int jm1;
+    double r, c, s;
+    unsigned int jm1;
     
     for(auto [j, a, b] = std::tuple{k, L.begin_col(k) + k, x.begin()}; j < p; j++, a += pp1, ++b){
       
@@ -434,18 +459,18 @@ void choldropU_Rcpp(arma::mat& U0,
   // The matrix U0 should have size = (nrow(U) - 1) * (ncol(U) - 1); it is
   // modified in-place.
   
-  int km1 = k - 1;
-  int p = U.n_cols;
-  int pp1 = p + 1;
-  int pm1 = p - 1;
-  int jm1;
+  unsigned int km1 = k - 1;
+  unsigned int p = U.n_cols;
+  unsigned int pp1 = p + 1;
+  unsigned int pm1 = p - 1;
+  unsigned int jm1;
   
   if(km1 == pm1){
     
     // If k is the last row/column, we copy up until that:
-    for(int j = 0; j < pm1; j++){
+    for(unsigned int j = 0; j < pm1; j++){
       
-      for(auto [u, v, w] = std::tuple{U.begin_col(j), U0.begin_col(j), 0}; w <= j; ++u, ++v, w++){
+      for(auto [u, v, w] = std::tuple{U.begin_col(j), U0.begin_col(j), 0u}; w <= j; ++u, ++v, w++){
         
         *v = *u;
         
@@ -456,16 +481,14 @@ void choldropU_Rcpp(arma::mat& U0,
   } else if(km1 == 0){
     
     // Perform rank-1 update on lower-right corner
-    int pk = p - k;
+    unsigned int pk = p - k;
     arma::colvec x(pk);
     for(auto [i, j] = std::tuple{U.begin_col(k) + km1, x.begin()}; j != x.end(); i += p, ++j){
       
       *j = *i;
       
     }
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     
     for(auto [j, a, b] = std::tuple{k, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
       
@@ -490,18 +513,18 @@ void choldropU_Rcpp(arma::mat& U0,
   } else {
     
     // Copy the top side...
-    int pk = p - k;
-    for(int j = 0; j < km1; j++){
+    unsigned int pk = p - k;
+    for(unsigned int j = 0; j < km1; j++){
       
       // Copy the top-left (above k) corner
-      for(auto [u, v, w] = std::tuple{U.begin_col(j), U0.begin_col(j), 0}; w <= j; ++u, ++v, w++){
+      for(auto [u, v, w] = std::tuple{U.begin_col(j), U0.begin_col(j), 0u}; w <= j; ++u, ++v, w++){
         
         *v = *u;
         
       }
       
       // Copy the top-right columns after kth column
-      for(auto [u, v, w] = std::tuple{U.begin_col(k) + j, U0.begin_col(km1) + j, 0}; w < pk; u += p, v += pm1, w++){
+      for(auto [u, v, w] = std::tuple{U.begin_col(k) + j, U0.begin_col(km1) + j, 0u}; w < pk; u += p, v += pm1, w++){
         
         *v = *u;
         
@@ -516,9 +539,7 @@ void choldropU_Rcpp(arma::mat& U0,
       *j = *i;
       
     }
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     
     for(auto [j, a, b] = std::tuple{k, U.begin_col(k) + k, x.begin()}; j < p; j++, a += pp1, ++b){
       
@@ -550,11 +571,11 @@ void choladdL_Rcpp(arma::mat& Lout,
                    const arma::vec& z,
                    const int& k){
   
-  int pin = Lin.n_cols;
-  int pinp1 = pin + 1;
-  int pout = z.n_elem;
-  int poutp1 = pout + 1;
-  int km1 = k - 1;
+  unsigned int pin = Lin.n_cols;
+  unsigned int pinp1 = pin + 1;
+  unsigned int pout = z.n_elem;
+  unsigned int poutp1 = pout + 1;
+  unsigned int km1 = k - 1;
   
   // There are three cases, corresponding to which new row/column k will be:
   // 1. km1 = 0
@@ -582,9 +603,7 @@ void choladdL_Rcpp(arma::mat& Lout,
     }
     
     // choldown of lower-right corner
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     for(auto [b, k0, k1] = std::tuple{y.begin(), Lin.begin_col(km1) + km1, Lout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
       
       // j iterates over the number of entries;
@@ -611,7 +630,7 @@ void choladdL_Rcpp(arma::mat& Lout,
     arma::vec y = z.tail(pout - k);
     
     // Copy L11 and calculate x <-- L11^{-1}x
-    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Lin.begin(), Lout.begin(), Lout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
+    for(auto [j, a, k0, k1, kk] = std::tuple{0u, x.begin(), Lin.begin(), Lout.begin(), Lout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
       
       // Fix current entry of x:
       *a /= *k0;
@@ -661,9 +680,7 @@ void choladdL_Rcpp(arma::mat& Lout,
     }
     
     // choldown of lower-right corner
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     for(auto [b, k0, k1] = std::tuple{y.begin(), Lin.begin_col(km1) + km1, Lout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
       
       // j iterates over the number of entries; 
@@ -689,7 +706,7 @@ void choladdL_Rcpp(arma::mat& Lout,
     arma::vec x = z.head(km1);
     
     // Copy L11 and calculate x <-- L11^{-1}x
-    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Lin.begin(), Lout.begin(), Lout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
+    for(auto [j, a, k0, k1, kk] = std::tuple{0u, x.begin(), Lin.begin(), Lout.begin(), Lout.begin() + km1}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, kk += pout){
       
       // Fix current entry of x:
       *a /= *k0;
@@ -727,11 +744,11 @@ void choladdU_Rcpp(arma::mat& Uout,
                    const arma::vec& z,
                    const int& k){
   
-  int pin = Uin.n_cols;
-  int pinp1 = pin + 1;
-  int pout = z.n_elem;
-  int poutp1 = pout + 1;
-  int km1 = k - 1;
+  unsigned int pin = Uin.n_cols;
+  unsigned int pinp1 = pin + 1;
+  unsigned int pout = z.n_elem;
+  unsigned int poutp1 = pout + 1;
+  unsigned int km1 = k - 1;
   
   // There are three cases, corresponding to which new row/column k will be:
   // 1. km1 = 0
@@ -759,9 +776,7 @@ void choladdU_Rcpp(arma::mat& Uout,
     }
     
     // choldown of lower-right corner
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     for(auto [b, k0, k1] = std::tuple{y.begin(), Uin.begin_col(km1) + km1, Uout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
       
       // j iterates over the number of entries; 
@@ -788,7 +803,7 @@ void choladdU_Rcpp(arma::mat& Uout,
     arma::vec y = z.tail(pout - k);
     
     // Copy U11 and calculate x <-- U11^{-1}x
-    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin_col(km1)}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, ++kk){
+    for(auto [j, a, k0, k1, kk] = std::tuple{0u, x.begin(), Uin.begin(), Uout.begin(), Uout.begin_col(km1)}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, ++kk){
       
       // Fix current entry of x:
       *a /= *k0;
@@ -837,9 +852,7 @@ void choladdU_Rcpp(arma::mat& Uout,
       
     }
     
-    double r;
-    double c;
-    double s;
+    double r, c, s;
     for(auto [b, k0, k1] = std::tuple{y.begin(), Uin.begin_col(km1) + km1, Uout.begin_col(k) + k}; b != y.end(); ++b, k0 += pinp1, k1 += poutp1){
       
       // j iterates over the number of entries; 
@@ -865,7 +878,7 @@ void choladdU_Rcpp(arma::mat& Uout,
     arma::vec x = z.head(km1);
     
     // Copy U11 and calculate x <-- U11^{-1}x
-    for(auto [j, a, k0, k1, kk] = std::tuple{0, x.begin(), Uin.begin(), Uout.begin(), Uout.begin_col(km1)}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, ++kk){
+    for(auto [j, a, k0, k1, kk] = std::tuple{0u, x.begin(), Uin.begin(), Uout.begin(), Uout.begin_col(km1)}; a != x.end(); j++, ++a, k0 += pinp1, k1 += poutp1, ++kk){
       
       // Fix current entry of x:
       *a /= *k0;
@@ -898,28 +911,29 @@ void choladdU_Rcpp(arma::mat& Uout,
 }
 
 // [[Rcpp::export]]
-void Lsolve_Rcpp(const arma::mat& L,
-                 arma::vec& x){
+void Lsolvex_Rcpp(const arma::mat& L,
+                  arma::vec& x){
   
   // This function will modify x in-place, so it is best to use this with a
   // function wrapper.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
+  auto a = x.memptr();
+  auto l = L.begin();
+  unsigned int p = x.n_elem;
+  unsigned int j, k;
   double b;
   
-  for(auto [j, ell, a] = std::tuple{0, L.begin(), x.begin()}; j < p; j++, ell += pp1, ++a){
+  for(j = 0; j < p; j++){
     
+    l += j;
     // Fix current entry of x:
-    *a /= *ell;
-    b = *a;
+    a[j] /= *l;
+    b = a[j];
+    ++l;
     
-    // Loop through remaining entries in the column
-    for(auto [u, v] = std::tuple{ell + 1, a + 1}; v != x.end(); ++u, ++v){
+    for(k = j + 1; k < p; k++, ++l){
       
-      // v iterates through x
-      // u iterates through L's column
-      *v -= *u * b;
+      a[k] -= b * *l;
       
     }
     
@@ -928,29 +942,118 @@ void Lsolve_Rcpp(const arma::mat& L,
 }
 
 // [[Rcpp::export]]
-void Usolve_Rcpp(const arma::mat& U,
-                 arma::vec& x){
+void LsolveX_Rcpp(const arma::mat& L,
+                  arma::mat& X){
+  
+  // This function will modify x in-place, so it is best to use this with a
+  // function wrapper.
+  auto x = X.memptr();
+  auto l = L.begin();
+  unsigned int n = X.n_rows;
+  unsigned int p = X.n_cols;
+  unsigned int kn = -n;
+  unsigned int i, j, k;
+  double b;
+  
+  for(k = 0; k < p; k++){
+    
+    l = L.begin();
+    kn += n;
+    
+    for(i = 0; i < n; i++){
+      
+      l += i;
+      // Fix current entry of x:
+      x[kn + i] /= *l;
+      b = x[kn + i];
+      ++l;
+      
+      for(j = i + 1; j < n; j++, ++l){
+        
+        x[kn + j] -= b * *l;
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+void Usolvex_Rcpp(const arma::mat& U,
+                  arma::vec& x){
   
   // This function will modify x in-place, so it is best to use this with a
   // function wrapper.
   
-  int p = x.n_elem;
-  int pp1 = p + 1;
-  int pm1 = p - 1;
+  auto xptr = x.memptr();
+  auto u = U.end();
+  --u;
+  unsigned int n = x.n_elem;
+  unsigned int nm1 = n - 1;
+  unsigned int ni;
+  unsigned int i;
+  int j;
+  double a;
   
-  for(auto [j, ell, a] = std::tuple{0, U.end() - 1, x.end() - 1}; j < p; j++, ell -= pp1, --a){
+  for(i = 0; i < n; i++){
     
-    // Fix current entry of x:
-    *a /= *ell;
+    u -= i;
+    ni = nm1 - i;
     
-    // Loop through remaining entries in the column
-    if(j < pm1){
+    // Fix current entry of x
+    xptr[ni] /= *u;
+    a = xptr[ni];
+    --u;
+    
+    for(j = ni - 1; j >= 0; j--, --u){
       
-      for(auto [u, v] = std::tuple{U.begin_col(pm1 - j), x.begin()}; v != a; ++u, ++v){
+      xptr[j] -= a * *u;
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+void UsolveX_Rcpp(const arma::mat& U,
+                  arma::mat& X){
+  
+  // This function will modify x in-place, so it is best to use this with a
+  // function wrapper.
+  
+  auto xptr = X.memptr();
+  auto u = U.end();
+  unsigned int n = X.n_rows;
+  unsigned int nm1 = n - 1;
+  unsigned int p = X.n_cols;
+  unsigned int ni;
+  unsigned int i, k;
+  unsigned int maxk = n * p;
+  int j, minj;
+  double a;
+  
+  for(k = nm1; k < maxk; k += n){
+    
+    u = U.end();
+    --u;
+    minj = k - nm1;
+    
+    for(i = 0; i < n; i++){
+      
+      u -= i;
+      ni = k - i;
+      
+      // Fix current entry of x
+      xptr[ni] /= *u;
+      a = xptr[ni];
+      --u;
+      
+      for(j = ni - 1; j >= minj; j--, --u){
         
-        // v iterates through x
-        // u iterates through U's column
-        *v -= *u * *a;
+        xptr[j] -= a * *u;
         
       }
       
