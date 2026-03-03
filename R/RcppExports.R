@@ -25,6 +25,10 @@ cholupU_Rcpp <- function(U, x) {
     invisible(.Call(`_fastchol_cholupU_Rcpp`, U, x))
 }
 
+cholupU2_Rcpp <- function(U, x) {
+    invisible(.Call(`_fastchol_cholupU2_Rcpp`, U, x))
+}
+
 cholupKU_Rcpp <- function(U, X) {
     invisible(.Call(`_fastchol_cholupKU_Rcpp`, U, X))
 }
@@ -53,11 +57,19 @@ choladdU_Rcpp <- function(Uout, Uin, z, k) {
     invisible(.Call(`_fastchol_choladdU_Rcpp`, Uout, Uin, z, k))
 }
 
-Lsolve_Rcpp <- function(L, x) {
-    invisible(.Call(`_fastchol_Lsolve_Rcpp`, L, x))
+Lsolvex_Rcpp <- function(L, x) {
+    invisible(.Call(`_fastchol_Lsolvex_Rcpp`, L, x))
 }
 
-Usolve_Rcpp <- function(U, x) {
-    invisible(.Call(`_fastchol_Usolve_Rcpp`, U, x))
+LsolveX_Rcpp <- function(L, X) {
+    invisible(.Call(`_fastchol_LsolveX_Rcpp`, L, X))
+}
+
+Usolvex_Rcpp <- function(U, x) {
+    invisible(.Call(`_fastchol_Usolvex_Rcpp`, U, x))
+}
+
+UsolveX_Rcpp <- function(U, X) {
+    invisible(.Call(`_fastchol_UsolveX_Rcpp`, U, X))
 }
 
