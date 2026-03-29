@@ -30,20 +30,57 @@ void cholRcpp_Rcpp(arma::mat& R,
 
 // [[Rcpp::export]]
 void LtoU_Rcpp(arma::mat& U,
-               const arma::mat& L){
+               const arma::mat& L,
+               const unsigned int& B = 32){
   
   // This function copies the lower-triangular part of L (including main
   // diagonal) into the upper-triangular part of U. It modifies U in-place, so
   // best to use with a wrapper function which sets the dimension of U.
   
-  unsigned int p = L.n_cols;
-  unsigned int pp1 = p + 1;
+  auto u = U.memptr();
+  auto ell = L.memptr();
+  unsigned int n = L.n_cols;
+  unsigned int ii, jj, i, j, imax, jmax, k, jn;
   
-  for(auto [j, a, b] = std::tuple{0u, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+  for(ii = 0; ii < n; ii += B){
     
-    for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
+    imax = std::min(ii + B, n);
+    
+    for(jj = 0; jj <= ii; jj += B){
       
-      *u = *ell;
+      jmax = std::min(jj + B, n);
+      
+      // If ii == jj, then we are on-diagonal, and so we copy over only the
+      // below-diagonal entries.
+      if(ii == jj){
+        
+        for(i = ii; i < imax; i++){
+          
+          k = i * n;
+          
+          for(j = jj; j <= i; j++){
+            
+            u[j + k] = ell[i + j * n];
+            
+          }
+          
+        }
+        
+      } else {
+        
+        for(i = ii; i < imax; i++){
+          
+          k = i * n;
+          
+          for(j = jj; j < jmax; j++){
+            
+            u[j + k] = ell[i + j * n];
+            
+          }
+          
+        }
+        
+      }
       
     }
     
@@ -53,20 +90,57 @@ void LtoU_Rcpp(arma::mat& U,
 
 // [[Rcpp::export]]
 void UtoL_Rcpp(arma::mat& L,
-               const arma::mat& U){
+               const arma::mat& U,
+               const unsigned int& B = 32){
   
   // This function copies the upper-triangular part of U (including main
   // diagonal) into the lower-triangular part of L. It modifies L in-place, so
   // best to use with a wrapper function which sets the dimension of L.
   
-  unsigned int p = L.n_cols;
-  unsigned int pp1 = p + 1;
+  auto u = U.memptr();
+  auto ell = L.memptr();
+  unsigned int n = L.n_cols;
+  unsigned int ii, jj, i, j, imax, jmax, k;
   
-  for(auto [j, a, b] = std::tuple{0u, L.begin(), U.begin()}; j < p; j++, a += pp1, b += pp1){
+  for(ii = 0; ii < n; ii += B){
     
-    for(auto [ell, u] = std::tuple{a, b}; ell != L.end_col(j); ++ell, u += p){
+    imax = std::min(ii + B, n);
+    
+    for(jj = ii; jj < n; jj += B){
       
-      *ell = *u;
+      jmax = std::min(jj + B, n);
+      
+      // If ii == jj, then we are on-diagonal, and so we copy over only the
+      // below-diagonal entries.
+      if(ii == jj){
+        
+        for(i = ii; i < imax; i++){
+          
+          k = i * n;
+          
+          for(j = i; j <= imax; j++){
+            
+            ell[j + k] = u[i + j * n];
+            
+          }
+          
+        }
+        
+      } else {
+        
+        for(i = ii; i < imax; i++){
+          
+          k = i * n;
+          
+          for(j = jj; j < jmax; j++){
+            
+            ell[j + k] = u[i + j * n];
+            
+          }
+          
+        }
+        
+      }
       
     }
     
@@ -157,35 +231,123 @@ void cholupKL_Rcpp(arma::mat& L,
   
 }
 
+// void cholupU_Rcpp(arma::mat& U,
+//                   arma::vec& x){
+//   
+//   // It would be best to use this function with a wrapper, as it modifies BOTH
+//   // U and x in-place.
+//   
+//   auto xptr = x.memptr();
+//   auto uptr = U.begin_col(0);
+//   unsigned int n = x.n_elem;
+//   double r, c, s, u, y;
+//   unsigned int i, j;
+//   
+//   for(i = 0; i < n; i++){
+//     
+//     uptr = U.begin_col(i) + i;
+//     
+//     u = *uptr;
+//     y = xptr[i];
+//     
+//     r = sqrt(u * u + y * y);
+//     c = u / r;
+//     s = y / r;
+//     
+//     // Set first dimension
+//     *uptr = r;
+//     
+//     // Calculate for second dimension
+//     for(j = i + 1; j < n; j++){
+//       
+//       uptr += n;
+//       u = *uptr;
+//       y = xptr[j];
+//       
+//       *uptr = c * u + s * y;
+//       xptr[j] = s * u - c * y;
+//       
+//     }
+//     
+//   }
+//   
+// }
+
 // [[Rcpp::export]]
 void cholupU_Rcpp(arma::mat& U,
-                  arma::vec& x){
+                  arma::vec& x,
+                  const unsigned int& B = 64){
   
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  unsigned int p = x.n_elem;
-  unsigned int pp1 = p + 1;
-  double r, c, s, y;
-
-  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  auto xptr = x.memptr();
+  auto uptr = U.begin_col(0);
+  unsigned int n = x.n_elem;
+  double r, c, s, u, y;
+  unsigned int ii, i, jj, j, imax, jmax, iii;
+  arma::vec csvec(B + B);
+  
+  for(ii = 0; ii < n; ii += B){
     
-    r = sqrt(*a * *a + *b * *b);
-    c = *a / r;
-    s = *b / r;
+    imax = std::min(B, n - ii);
     
-    // Set first dimension
-    *a = r;
-    
-    // Calculate for second dimension
-    for(auto [u, v] = std::tuple{b + 1, a + p}; u != x.end(); ++u, v += p){
+    for(jj = ii; jj < n; jj += B){
       
-      // The variables iterate over...
-      // u: iterates over x
-      // v: iterates over U's row
-      y = *v;
-      *v = c * y + s * *u;
-      *u = s * y - c * *u;
+      jmax = std::min(B, n - jj);
+      
+      // If jj == ii, we are on the diagonal, so we reset s/c
+      if(jj == ii){
+        
+        for(i = 0; i < imax; i++){
+          
+          iii = ii + i;
+          uptr = U.begin_col(iii) + iii;
+          u = *uptr;
+          y = xptr[iii];
+          
+          r = sqrt(u * u + y * y);
+          c = u / r;
+          s = y / r;
+          
+          *uptr = r;
+          for(j = i + 1; j < jmax; j++){
+            
+            uptr += n;
+            u = *uptr;
+            y = xptr[jj + j];
+            
+            *uptr = c * u + s * y;
+            xptr[jj + j] = s * u - c * y;
+            
+          }
+          
+          csvec(i) = c;
+          csvec(i + B) = s;
+          
+        }
+        
+      } else {
+        
+        for(i = 0; i < imax; i++){
+
+          uptr = U.begin_col(jj) + ii + i;
+          c = csvec(i);
+          s = csvec(i + B);
+          for(j = 0; j < jmax; j++){
+
+            u = *uptr;
+            y = xptr[jj + j];
+
+            *uptr = c * u + s * y;
+            xptr[jj + j] = s * u - c * y;
+            uptr += n;
+
+          }
+
+        }
+        
+      }
       
     }
     
@@ -195,37 +357,41 @@ void cholupU_Rcpp(arma::mat& U,
 
 // [[Rcpp::export]]
 void cholupU2_Rcpp(arma::mat& U,
-                   arma::vec& x){
+                   arma::vec& x,
+                   arma::vec& svec){
   
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  auto u = U.begin();
+  auto uptr = U.begin_col(0);
+  unsigned int n = x.n_elem;
+  unsigned int i, j;
+  double r, u, y, c, s;
   auto xptr = x.memptr();
-  unsigned int p = x.n_elem;
-  unsigned int pp1 = p + 1;
-  double r, c, s, y, z;
+  auto sptr = svec.memptr();
   
-  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  // Obtain r's first
+  for(i = 0; i < n; i++){
     
-    r = sqrt(*a * *a + *b * *b);
-    c = *a / r;
-    s = *b / r;
+    uptr = U.begin_col(i);
+    y = xptr[i];
     
-    // Set first dimension
-    *a = r;
-    
-    // Calculate for second dimension
-    for(auto [u, v] = std::tuple{b + 1, a + p}; u != x.end(); ++u, v += p){
+    for(j = 0; j < i; j++, ++uptr){
       
-      // The variables iterate over...
-      // u: iterates over x
-      // v: iterates over U's row
-      y = *v;
-      *v = c * y + s * *u;
-      *u = s * y - c * *u;
+      u = *uptr;
+      c = xptr[j];
+      s = sptr[j];
+      
+      *uptr = c * u + s * y;
+      y = s * u - c * y;
       
     }
+    
+    u = *uptr;
+    r = sqrt(y * y + u * u);
+    sptr[i] = y / r;
+    xptr[i] = u / r;
+    *uptr = r;
     
   }
   
@@ -276,27 +442,37 @@ void cholupKU_Rcpp(arma::mat& U,
 void choldownL_Rcpp(arma::mat& L,
                     arma::vec& x){
   
-  // It would be best to use this function with a wrapper, as it modifies BOTH
-  // L and x in-place.
-  
+  auto l = L.begin();
+  auto xptr = x.memptr();
   unsigned int p = x.n_elem;
-  unsigned int pp1 = p + 1;
-  double r, c, s, y;
+  unsigned int j, k;
+  double r, c, s, y, z;
   
-  for(auto [j, a, b] = std::tuple{0u, L.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
+  for(j = 0; j < p; j++){
     
-    r = sqrt(*a * *a - *b * *b);
-    c = *a / r;
-    s = *b / r;
+    l += j;
+    y = *l;
+    z = xptr[j];
     
-    for(auto [u, v] = std::tuple{b, a}; u != x.end(); ++u, ++v){
+    r = sqrt(y * y - z * z);
+    c = y / r;
+    s = z / r;
+    
+    // Set first dimension
+    *l = r;
+    ++l;
+    
+    // Calculate for remaining dimensions
+    for(k = j + 1; k < p; k++, ++l){
       
       // The variables iterate over...
-      // v: iterates over x
-      // u: iterates over L's column
-      y = *v;
-      *v = c * y - s * *u;
-      *u = c * *u - s * y;
+      // z: iterates over x
+      // y: iterates over L's column
+      y = *l;
+      z = xptr[k];
+      
+      *l = c * y - s * z;
+      xptr[k] = c * z - s * y;
       
     }
     
@@ -306,32 +482,82 @@ void choldownL_Rcpp(arma::mat& L,
 
 // [[Rcpp::export]]
 void choldownU_Rcpp(arma::mat& U,
-                    arma::vec& x){
+                    arma::vec& x,
+                    const unsigned int& B = 64){
   
   // It would be best to use this function with a wrapper, as it modifies BOTH
   // U and x in-place.
   
-  unsigned int p = x.n_elem;
-  unsigned int pp1 = p + 1;
-  double r, c, s, y;
-  
-  for(auto [j, a, b] = std::tuple{0u, U.begin(), x.begin()}; j < p; j++, a += pp1, ++b){
-    
-    r = sqrt(*a * *a - *b * *b);
-    c = *a / r;
-    s = *b / r;
-    
-    for(auto [u, v] = std::tuple{b, a}; u != x.end(); ++u, v += p){
-      
-      // The variables iterate over...
-      // u: iterates over x
-      // v: iterates over L's column
-      y = *v;
-      *v = c * y - s * *u;
-      *u = c * *u - s * y;
-      
+  auto xptr = x.memptr();
+  auto uptr = U.begin_col(0);
+  unsigned int n = x.n_elem;
+  double r, c, s, u, y;
+  unsigned int ii, i, jj, j, imax, jmax, iii;
+  arma::vec csvec(B + B);
+
+  for(ii = 0; ii < n; ii += B){
+
+    imax = std::min(B, n - ii);
+
+    for(jj = ii; jj < n; jj += B){
+
+      jmax = std::min(B, n - jj);
+
+      // If jj == ii, we are on the diagonal, so we reset s/c
+      if(jj == ii){
+
+        for(i = 0; i < imax; i++){
+
+          iii = ii + i;
+          uptr = U.begin_col(iii) + iii;
+          u = *uptr;
+          y = xptr[iii];
+
+          r = sqrt(u * u - y * y);
+          c = u / r;
+          s = y / r;
+
+          *uptr = r;
+          for(j = i + 1; j < jmax; j++){
+
+            uptr += n;
+            u = *uptr;
+            y = xptr[jj + j];
+
+            *uptr = c * u - s * y;
+            xptr[jj + j] = c * y - s * u;
+
+          }
+
+          csvec(i) = c;
+          csvec(i + B) = s;
+
+        }
+
+      } else {
+
+        for(i = 0; i < imax; i++){
+
+          uptr = U.begin_col(jj) + ii + i;
+          c = csvec(i);
+          s = csvec(i + B);
+          for(j = 0; j < jmax; j++){
+
+            u = *uptr;
+            y = xptr[jj + j];
+
+            *uptr = c * u - s * y;
+            xptr[jj + j] = c * y - s * u;
+            uptr += n;
+
+          }
+
+        }
+
+      }
+
     }
-    
+
   }
   
 }
@@ -339,7 +565,7 @@ void choldownU_Rcpp(arma::mat& U,
 // [[Rcpp::export]]
 void choldropL_Rcpp(arma::mat& L0,
                     const arma::mat& L,
-                    const int& k){
+                    const unsigned int& k){
   
   // The matrix L0 should have size = (nrow(L) - 1) * (ncol(L) - 1); it is
   // modified in-place.
@@ -454,7 +680,7 @@ void choldropL_Rcpp(arma::mat& L0,
 // [[Rcpp::export]]
 void choldropU_Rcpp(arma::mat& U0,
                     const arma::mat& U,
-                    const int& k){
+                    const unsigned int& k){
   
   // The matrix U0 should have size = (nrow(U) - 1) * (ncol(U) - 1); it is
   // modified in-place.
@@ -569,7 +795,7 @@ void choldropU_Rcpp(arma::mat& U0,
 void choladdL_Rcpp(arma::mat& Lout,
                    const arma::mat& Lin,
                    const arma::vec& z,
-                   const int& k){
+                   const unsigned int& k){
   
   unsigned int pin = Lin.n_cols;
   unsigned int pinp1 = pin + 1;
@@ -742,7 +968,7 @@ void choladdL_Rcpp(arma::mat& Lout,
 void choladdU_Rcpp(arma::mat& Uout,
                    const arma::mat& Uin,
                    const arma::vec& z,
-                   const int& k){
+                   const unsigned int& k){
   
   unsigned int pin = Uin.n_cols;
   unsigned int pinp1 = pin + 1;

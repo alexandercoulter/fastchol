@@ -43,7 +43,7 @@ cholup = function(CF, x, lower = TRUE){
   R[1] = R[1] + 0
   x0 = x
   x0[1] = x0[1] + 0
-  if(lower) cholupL_Rcpp(R, x0) else cholupU_Rcpp(R, x0)
+  if(lower) cholupL_Rcpp(R, x0) else cholupU_Rcpp(R, x0, B = 64)
   R
   
 }
