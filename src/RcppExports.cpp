@@ -129,51 +129,51 @@ BEGIN_RCPP
 END_RCPP
 }
 // choldropL_Rcpp
-void choldropL_Rcpp(arma::mat& L0, const arma::mat& L, const int& k);
+void choldropL_Rcpp(arma::mat& L0, const arma::mat& L, const unsigned int& k);
 RcppExport SEXP _fastchol_choldropL_Rcpp(SEXP L0SEXP, SEXP LSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type L0(L0SEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const unsigned int& >::type k(kSEXP);
     choldropL_Rcpp(L0, L, k);
     return R_NilValue;
 END_RCPP
 }
 // choldropU_Rcpp
-void choldropU_Rcpp(arma::mat& U0, const arma::mat& U, const int& k);
+void choldropU_Rcpp(arma::mat& U0, const arma::mat& U, const unsigned int& k);
 RcppExport SEXP _fastchol_choldropU_Rcpp(SEXP U0SEXP, SEXP USEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type U0(U0SEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type U(USEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const unsigned int& >::type k(kSEXP);
     choldropU_Rcpp(U0, U, k);
     return R_NilValue;
 END_RCPP
 }
 // choladdL_Rcpp
-void choladdL_Rcpp(arma::mat& Lout, const arma::mat& Lin, const arma::vec& z, const int& k);
+void choladdL_Rcpp(arma::mat& Lout, const arma::mat& Lin, const arma::vec& z, const unsigned int& k);
 RcppExport SEXP _fastchol_choladdL_Rcpp(SEXP LoutSEXP, SEXP LinSEXP, SEXP zSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type Lout(LoutSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type Lin(LinSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const unsigned int& >::type k(kSEXP);
     choladdL_Rcpp(Lout, Lin, z, k);
     return R_NilValue;
 END_RCPP
 }
 // choladdU_Rcpp
-void choladdU_Rcpp(arma::mat& Uout, const arma::mat& Uin, const arma::vec& z, const int& k);
+void choladdU_Rcpp(arma::mat& Uout, const arma::mat& Uin, const arma::vec& z, const unsigned int& k);
 RcppExport SEXP _fastchol_choladdU_Rcpp(SEXP UoutSEXP, SEXP UinSEXP, SEXP zSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type Uout(UoutSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type Uin(UinSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const unsigned int& >::type k(kSEXP);
     choladdU_Rcpp(Uout, Uin, z, k);
     return R_NilValue;
 END_RCPP
